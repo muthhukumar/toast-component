@@ -1,12 +1,30 @@
-import React from 'react';
+import React from "react"
 
-import Button from '../Button';
+import Button from "../Button"
+import ToastShelf from "../ToastShelf"
 
-import styles from './ToastPlayground.module.css';
+import styles from "./ToastPlayground.module.css"
+import {useToast} from "../ToastProvider/ToastProvider"
 
-const VARIANT_OPTIONS = ['notice', 'warning', 'success', 'error'];
+const VARIANT_OPTIONS = ["notice", "warning", "success", "error"]
+
+const DEFAULT_VARIANT = "notice"
 
 function ToastPlayground() {
+  const [message, setMessage] = React.useState("")
+  const [selectedVariant, setSelectedVariant] = React.useState(DEFAULT_VARIANT)
+
+  const toast = useToast()
+
+  function handlePopToast(event) {
+    event.preventDefault()
+
+    toast.show({message, variant: selectedVariant})
+
+    setSelectedVariant(DEFAULT_VARIANT)
+    setMessage("")
+  }
+
   return (
     <div className={styles.wrapper}>
       <header>
@@ -14,50 +32,58 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      <div className={styles.controlsWrapper}>
-        <div className={styles.row}>
-          <label
-            htmlFor="message"
-            className={styles.label}
-            style={{ alignSelf: 'baseline' }}
-          >
-            Message
-          </label>
-          <div className={styles.inputWrapper}>
-            <textarea id="message" className={styles.messageInput} />
-          </div>
-        </div>
+      <ToastShelf />
 
-        <div className={styles.row}>
-          <div className={styles.label}>Variant</div>
-          <div
-            className={`${styles.inputWrapper} ${styles.radioWrapper}`}
-          >
-            <label htmlFor="variant-notice">
-              <input
-                id="variant-notice"
-                type="radio"
-                name="variant"
-                value="notice"
-              />
-              notice
+      <form onSubmit={handlePopToast}>
+        <div className={styles.controlsWrapper}>
+          <div className={styles.row}>
+            <label htmlFor="message" className={styles.label} style={{alignSelf: "baseline"}}>
+              Message
             </label>
+            <div className={styles.inputWrapper}>
+              <textarea
+                id="message"
+                required
+                className={styles.messageInput}
+                value={message}
+                onChange={event => setMessage(event.target.value)}
+              />
+            </div>
+          </div>
 
-            {/* TODO Other Variant radio buttons here */}
+          <div className={styles.row}>
+            <div className={styles.label}>Variant</div>
+            <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
+              {VARIANT_OPTIONS.map(variant => {
+                const label = `variant-${variant}`
+                return (
+                  <label key={variant} htmlFor={label}>
+                    <input
+                      id={label}
+                      type="radio"
+                      required
+                      checked={variant === selectedVariant}
+                      name="variant"
+                      value={variant}
+                      onChange={event => setSelectedVariant(event.target.value)}
+                    />
+                    {variant}
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.label} />
+            <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
+              <Button type="submit">Pop Toast!</Button>
+            </div>
           </div>
         </div>
-
-        <div className={styles.row}>
-          <div className={styles.label} />
-          <div
-            className={`${styles.inputWrapper} ${styles.radioWrapper}`}
-          >
-            <Button>Pop Toast!</Button>
-          </div>
-        </div>
-      </div>
+      </form>
     </div>
-  );
+  )
 }
 
-export default ToastPlayground;
+export default ToastPlayground
